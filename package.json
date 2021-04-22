@@ -19,5 +19,11 @@
   "bugs": {
     "url": "https://github.com/mikenewbuild/shopify_csv_export/issues"
   },
-  "homepage": "https://github.com/mikenewbuild/shopify_csv_export#readme"
+  "homepage": "https://github.com/mikenewbuild/shopify_csv_export#readme",
+  "dependencies": {
+    "dotenv": "^8.2.0",
+    "json2csv": "^5.0.6",
+    "node-fetch": "^2.6.1",
+    "requirejs": "^2.3.6"
+  }
 }
