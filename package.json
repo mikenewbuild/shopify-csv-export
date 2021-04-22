@@ -1,0 +1,23 @@
+{
+  "name": "shopify_csv_export",
+  "version": "1.0.0",
+  "description": "Simple CSV exports for Shopify",
+  "main": "main.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikenewbuild/shopify_csv_export.git"
+  },
+  "keywords": [
+    "shopify",
+    "csv"
+  ],
+  "author": "Mike Fallows @ Newbuild Studio",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mikenewbuild/shopify_csv_export/issues"
+  },
+  "homepage": "https://github.com/mikenewbuild/shopify_csv_export#readme"
+}
