@@ -1,6 +1,6 @@
 # Shopify CSV Exports
 
-### Setup
+### Setup
 
 To set up copy the `env.example` file to `.env` and fill in the values.
 ```
