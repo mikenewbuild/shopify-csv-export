@@ -4,7 +4,8 @@
   "description": "Simple CSV exports for Shopify",
   "main": "main.js",
   "scripts": {
-    "test": "test"
+    "export": "node main.js",
+    "test": ""
   },
   "repository": {
     "type": "git",
