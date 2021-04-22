@@ -27,6 +27,9 @@ const parseNextUrl = (link) => {
 const getResources = async (url) => {
   const response = await fetch(url);
   const data = await response.json();
+  if (!Array.isArray(data[RESOURCE])) {
+    throw new Error('No data returned. Check that you have defined a plural resource.');
+  }
   data[RESOURCE].forEach(row => resources.push(row));
   console.log("Fetched......", resources.length);
 
