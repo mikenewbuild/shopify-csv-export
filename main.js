@@ -18,21 +18,15 @@ const csvFields = FIELDS.split(',');
 const filename = (RELATION) ? `${RELATION}.csv` : `${RESOURCE}.csv`;
 const resourceKey = pluralize.singular(RESOURCE);
 
-const resources = [];
-
-const outputCsv = (data, fields, filename = 'export.csv') => {
-  const csv = parse(data, { fields });
+const outputCsv = (rows, fields, filename = 'export.csv') => {
+  const csv = parse(rows, { fields });
   fs.writeFile(filename, csv, (error) => {
     if (error) throw error;
-    console.log();
-    console.log(`All done! Saved as "${filename}"`);
   });
 }
 
-console.log(`Fetching ${RELATION ? RELATION : RESOURCE} (${FIELDS}) from ${SHOP}`);
-console.log();
-
 (async () => {
+  const rows = [];
   let params = { limit: 100 };
   if (RELATION) {
     params = { fields: [RELATION], ...params };
@@ -40,16 +34,24 @@ console.log();
     params = { fields: csvFields, ...params };
   }
 
+  console.log(`Fetching ${RELATION ? RELATION : RESOURCE} (${FIELDS}) from ${SHOP}`);
+  console.log();
+
   do {
-    const rows = await shopify[resourceKey].list(params);
+    const resources = await shopify[resourceKey].list(params);
     if (RELATION) {
-      resources.push(...rows.flatMap(row => row[RELATION]));
+      rows.push(...resources.flatMap(r => r[RELATION]));
     } else {
-      resources.push(...rows);
+      rows.push(...resources);
     }
-    console.log('Fetched......', resources.length);
-    params = rows.nextPageParameters;
+
+    console.log('Fetched......', rows.length);
+
+    params = resources.nextPageParameters;
   } while (params);
 
-  outputCsv(resources, csvFields, filename);
+  outputCsv(rows, csvFields, filename);
+
+  console.log();
+  console.log(`All done! Saved as "${filename}"`);
 })().catch(console.error);
