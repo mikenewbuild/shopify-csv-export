@@ -11,8 +11,8 @@ const filename = `${RESOURCE}.csv`;
 
 const outputCsv = (data, fields) => {
   const csv = parse(data, { fields });
-  fs.writeFile(filename, csv, (err) => {
-    if (err) throw err;
+  fs.writeFile(filename, csv, (error) => {
+    if (error) throw error;
     console.log(`Done! saved as "${filename}"`);
   });
 }
