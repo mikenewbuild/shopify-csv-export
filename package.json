@@ -2,10 +2,9 @@
   "name": "shopify-csv-export",
   "version": "1.0.0",
   "description": "Simple CSV exports for Shopify",
-  "main": "main.js",
   "scripts": {
-    "export": "node main.js",
-    "test": ""
+    "export": "node export-resources.js",
+    "prices": "node export-prices.js"
   },
   "repository": {
     "type": "git",
