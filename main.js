@@ -1,17 +1,29 @@
-require('dotenv').config();
-const { SHOP, RESOURCE, RELATION, FIELDS } = process.env;
-
-// let config = {
-//   shop: SHOP,
-//   fields: FIELDS.split(','),
-//   resource: RESOURCE,
-//   relation: RELATION
-// }
-
-// require('./resource.js').write(config).catch(console.error());
-
 let config = {
-  shop: SHOP
+  resource: 'product',
+  relation: 'variants',
+  fields: ['id','title','sku','inventory_quantity','product_id','price']
 }
 
-require('./prices.js').write(config).catch(console.error());
+// require('./services/resources.js').write(config).catch(console.error());
+
+const TAX_MULTIPLIER = 1.2;
+
+function addTax(price) {
+  return (price * TAX_MULTIPLIER).toFixed(2);
+}
+
+function calculateTax(row, field) {
+  return row['taxable'] ? addTax(row[field]) : row[field];
+}
+
+function isPublished(row) {
+  return row.published_at;
+}
+
+let usePartition = {
+  usePartition: isPublished,
+  passName: 'published',
+  failName: 'unpublished'
+}
+
+// require('./services/prices.js').write({ priceMutation: calculateTax, usePartition }).catch(console.error());
