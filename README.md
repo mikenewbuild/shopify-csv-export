@@ -1,5 +1,7 @@
 # Shopify CSV Exports
 
+A simple starter script to quickly export configurable CSV files from Shopify stores.
+
 ### Setup
 
 To set up copy the `env.example` file to `.env` and fill in the values. You'll need to add the private app credentials you created in Shopify, and make sure you have the privilege to read the resources you need.
@@ -16,31 +18,25 @@ $ npm install
 
 ### Usage
 
-Kinda easy...
+To export resources, modify `export-resources.js` to your needs then run:
 
 ```bash
 $ npm run export
 ```
 
-### Config
+To export prices, modify `export-prices.js` to your needs then run:
 
-Modify the `.env` file for the `RESOURCE`, `RELATION` (optional) and `FIELDS` (columns) you want.
-
-Here's an example to grab some top level info about products.
-
-```shell
-RESOURCE=products
-RELATION=
-FIELDS=id,handle,title,vendor,product_type,published_scope,tags
+```bash
+$ npm run prices
 ```
 
-Here's an example to get details about variants.
+### Resources
 
-```shell
-RESOURCE=products
-RELATION=variants
-FIELDS=id,title,sku,inventory_quantity,product_id,price
-```
+You can currently specify a resource and optionally a sub resource if you want to flatten the data.
+
+### Prices
+
+You can export a mutated set of prices along with the original price data (eg. with VAT added) and optionally partition it based on a boolean (eg. published).
 
 ### To do
 
