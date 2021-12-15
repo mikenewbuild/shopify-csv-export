@@ -1,23 +1,88 @@
-require('dotenv').config();
-const { shopify } = require('./shopify.js');
-const { writeCsv } = require('./csv');
+require('dotenv').config()
+const chalk = require('chalk')
+const ProgressBar = require('progress')
+const { shopify } = require('./shopify')
+const { writeCsv } = require('./csv')
+const { partition } = require('./utils')
 
-const { SHOP } = process.env;
+const { SHOP } = process.env
+
+function writePartitionedCsv(
+  { rows, name, transforms },
+  { usePartition, passName, failName }
+) {
+  const pass = passName || 'pass'
+  const fail = failName || 'fail'
+  const [passed, failed] = partition(rows, usePartition)
+
+  writeCsv({ rows: passed, fields: transforms, name: `${name}.${pass}` })
+  writeCsv({ rows: failed, fields: transforms, name: `${name}.${fail}` })
+}
+
+function writePricesCsv({ rows, name, priceMutation, usePartition }) {
+  const mutate = priceMutation || ((row, field) => row[field])
+
+  const transforms = [
+    {
+      label: 'Handle',
+      value: 'handle',
+    },
+    {
+      label: 'Title',
+      value: 'title',
+    },
+    {
+      label: 'Option1 Value',
+      value: 'option1',
+    },
+    {
+      label: 'Option2 Value',
+      value: 'option2',
+    },
+    {
+      label: 'Option3 Value',
+      value: 'option3',
+    },
+    {
+      label: 'Variant Price',
+      value: (row) => mutate(row, 'price'),
+    },
+    {
+      label: 'Variant Compare At Price',
+      value: (row) => mutate(row, 'compare_at_price'),
+    },
+  ]
+
+  writePartitionedCsv({ rows, name, transforms }, usePartition)
+}
 
 module.exports.write = async ({ name, priceMutation, usePartition }) => {
-  name = name ? name.replace('.csv', '') : 'prices';
-  let fields = ['handle', 'title', 'published_at', 'variants'];
-  let params = { fields: fields, limit: 250 };
+  const key = name ? name.replace('.csv', '') : 'prices'
+  const fields = ['handle', 'title', 'published_at', 'variants']
+  const limit = 49
+  let params = { fields, limit }
 
-  console.log();
-  console.log(`Fetching prices from ${SHOP}`);
-  console.log();
+  // console.log();
+  // console.log(`Fetching prices from ${SHOP}`);
+  // console.log();
 
-  let rows = [];
+  const rows = []
+
+  const label = `Fetching prices from ${SHOP}`
+  const count = await shopify.product.count()
+  const total = Math.ceil(count / limit)
+
+  console.log(chalk.yellow(label))
+  const bar = new ProgressBar(`[:bar] :percent :etas`, {
+    total,
+    label,
+    width: 40,
+  })
+
   do {
-    const products = await shopify['product'].list(params);
-    const prices = products.flatMap(p => p.variants.map(v => {
-      return {
+    const products = await shopify.product.list(params)
+    const prices = products.flatMap((p) =>
+      p.variants.map((v) => ({
         handle: p.handle,
         title: p.title,
         published_at: p.published_at,
@@ -26,78 +91,27 @@ module.exports.write = async ({ name, priceMutation, usePartition }) => {
         option3: v.option3,
         taxable: v.taxable,
         price: v.price,
-        compare_at_price: v.compare_at_price
-      };
-    }));
-    rows.push(...prices);
+        compare_at_price: v.compare_at_price,
+      }))
+    )
+    rows.push(...prices)
 
-    console.log('Fetched......', rows.length);
+    bar.tick()
 
-    params = products.nextPageParameters;
-  } while (params);
+    params = products.nextPageParameters
+  } while (params)
 
-  let config = { rows, usePartition };
+  const config = { rows, usePartition }
 
-  console.log();
-  console.log('Writing orginal prices...');
-  writePricesCsv({ name: `${name}.original`, ...config });
+  console.log(chalk.blue('Fetched ' + chalk.bold(rows.length) + ' prices.'))
+  console.log(chalk.blue('From ' + chalk.bold(count) + ' products.'))
+  console.log()
+  console.log('Writing ' + chalk.bold('orginal') + ' prices...')
+  writePricesCsv({ name: `${key}.original`, ...config })
 
-  console.log();
-  console.log('Writing mutated prices...');
-  writePricesCsv({ name: `${name}.mutated`, priceMutation, ...config });
+  console.log('Writing ' + chalk.bold('mutated') + ' prices...')
+  writePricesCsv({ name: `${key}.mutated`, priceMutation, ...config })
 
-  console.log();
-  console.log('** All done! **');
-}
-
-function writePricesCsv({ rows, name, priceMutation, usePartition }) {
-  priceMutation = priceMutation ? priceMutation : (row, field) => row[field];
-
-  let transforms = [
-    {
-      label: 'Handle',
-      value: 'handle'
-    },
-    {
-      label: 'Title',
-      value: 'title'
-    },
-    {
-      label: 'Option1 Value',
-      value: 'option1'
-    },
-    {
-      label: 'Option2 Value',
-      value: 'option2'
-    },
-    {
-      label: 'Option3 Value',
-      value: 'option3'
-    },
-    {
-      label: 'Variant Price',
-      value: (row) => priceMutation(row, 'price')
-    },
-    {
-      label: 'Variant Compare At Price',
-      value: (row) => priceMutation(row, 'compare_at_price')
-    }
-  ];
-
-  writePartitionedCsv({ rows, name, transforms }, usePartition);
-}
-
-function writePartitionedCsv({ rows, name, transforms }, { usePartition, passName, failName }) {
-  passName = passName ? passName : 'pass';
-  failName = failName ? failName : 'fail';
-  [pass, fail] = partition(rows, usePartition);
-
-  writeCsv({ rows: pass, fields: transforms, name: `${name}.${passName}` });
-  writeCsv({ rows: fail, fields: transforms, name: `${name}.${failName}` });
-}
-
-function partition(array, isValid) {
-  return array.reduce(([pass, fail], elem) => {
-    return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
-  }, [[], []]);
+  console.log()
+  console.log(chalk.greenBright('** All done! **'))
 }
