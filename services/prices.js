@@ -1,5 +1,5 @@
 require('dotenv').config()
-const chalk = require('chalk')
+const text = require('turbocolor')
 const ProgressBar = require('progress')
 const { shopify } = require('./shopify')
 const { writeCsv } = require('./csv')
@@ -62,17 +62,13 @@ module.exports.write = async ({ name, priceMutation, usePartition }) => {
   const limit = 49
   let params = { fields, limit }
 
-  // console.log();
-  // console.log(`Fetching prices from ${SHOP}`);
-  // console.log();
-
   const rows = []
 
   const label = `Fetching prices from ${SHOP}`
   const count = await shopify.product.count()
   const total = Math.ceil(count / limit)
 
-  console.log(chalk.yellow(label))
+  console.log(text.yellow(label))
   const bar = new ProgressBar(`[:bar] :percent :etas`, {
     total,
     label,
@@ -103,15 +99,15 @@ module.exports.write = async ({ name, priceMutation, usePartition }) => {
 
   const config = { rows, usePartition }
 
-  console.log(chalk.blue('Fetched ' + chalk.bold(rows.length) + ' prices.'))
-  console.log(chalk.blue('From ' + chalk.bold(count) + ' products.'))
+  console.log(text.blue('Fetched ' + text.bold(rows.length) + ' prices.'))
+  console.log(text.blue('From ' + text.bold(count) + ' products.'))
   console.log()
-  console.log('Writing ' + chalk.bold('orginal') + ' prices...')
+  console.log('Writing ' + text.bold('orginal') + ' prices...')
   writePricesCsv({ name: `${key}.original`, ...config })
 
-  console.log('Writing ' + chalk.bold('mutated') + ' prices...')
+  console.log('Writing ' + text.bold('mutated') + ' prices...')
   writePricesCsv({ name: `${key}.mutated`, priceMutation, ...config })
 
   console.log()
-  console.log(chalk.greenBright('** All done! **'))
+  console.log(text.green('** All done! **'))
 }
