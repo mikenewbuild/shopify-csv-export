@@ -36,5 +36,5 @@ module.exports.write = async ({ fields, resource, relation }) => {
   writeCsv({ rows, fields, name })
 
   console.log()
-  console.log('** All done! **"')
+  console.log('** All done! **')
 }
