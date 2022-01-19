@@ -64,9 +64,9 @@ module.exports.write = async ({ name, priceMutation, usePartition }) => {
 
   const rows = []
 
-  const label = `Fetching prices from ${SHOP}`
   const count = await shopify.product.count()
   const total = Math.ceil(count / limit)
+  const label = `Fetching ${count} products from ${SHOP}`
 
   console.log(text.yellow(label))
   const bar = new ProgressBar(`[:bar] :percent :etas`, {
@@ -99,8 +99,15 @@ module.exports.write = async ({ name, priceMutation, usePartition }) => {
 
   const config = { rows, usePartition }
 
-  console.log(text.blue('Fetched ' + text.bold(rows.length) + ' prices.'))
-  console.log(text.blue('From ' + text.bold(count) + ' products.'))
+  console.log(
+    text.blue(
+      'Found ' +
+        text.bold(rows.length) +
+        ' prices in ' +
+        text.bold(count) +
+        ' products.'
+    )
+  )
   console.log()
   console.log('Writing ' + text.bold('orginal') + ' prices...')
   writePricesCsv({ name: `${key}.original`, ...config })
