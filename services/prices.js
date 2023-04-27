@@ -1,6 +1,6 @@
 require('dotenv').config();
 const { shopify } = require('./shopify.js');
-const { writeCsv } = require('./csv');
+const { writeCsv } = require('./files.js');
 
 const { SHOP } = process.env;
 
