@@ -4,6 +4,7 @@
   "description": "Simple CSV exports for Shopify",
   "scripts": {
     "export": "node export-resources.js",
+    "migrate-blog": "node migrate-blog.js",
     "prices": "node export-prices.js"
   },
   "repository": {
