@@ -5,6 +5,7 @@
   "scripts": {
     "export": "node export-resources.js",
     "migrate-blog": "node migrate-blog.js",
+    "mutate-redirects": "node mutate-redirects.js",
     "prices": "node export-prices.js"
   },
   "repository": {
